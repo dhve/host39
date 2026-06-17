@@ -8,6 +8,7 @@ export interface JwtPayload {
 export interface DbUser {
   id: string;
   email: string;
+  handle: string;
   displayName: string | null;
   passwordHash: string;
   identityType: 'domain' | 'email';
@@ -35,6 +36,7 @@ export interface DbAgentCard {
   providerName: string | null;
   providerUrl: string | null;
   status: 'active' | 'inactive';
+  isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

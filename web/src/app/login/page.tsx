@@ -18,6 +18,7 @@ function LoginPageInner() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [handle, setHandle] = useState("");
   const [identityType, setIdentityType] = useState<IdentityType>("email");
   const [domain, setDomain] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,7 @@ function LoginPageInner() {
         token = await registerUser({
           email,
           password,
+          handle,
           display_name: displayName || undefined,
           identity_type: identityType,
           domain: identityType === "domain" ? domain : undefined,
@@ -108,6 +110,24 @@ function LoginPageInner() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   className="w-full rounded-xl border border-black/10 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-300"
                 />
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Username (e.g. ankit)"
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                    required={mode === "register"}
+                    minLength={2}
+                    maxLength={32}
+                    pattern="^[a-z0-9][a-z0-9-]{1,31}$"
+                    className="w-full rounded-xl border border-black/10 px-4 py-2.5 font-mono text-sm outline-none focus:ring-2 focus:ring-slate-300"
+                  />
+                  {handle && (
+                    <p className="mt-1 text-xs text-slate-400">
+                      Your cards will be at /personal/<span className="font-medium text-slate-600">{handle}</span>/slug.json
+                    </p>
+                  )}
+                </div>
 
                 {/* Identity type */}
                 <div className="rounded-xl border border-black/10 p-3">
@@ -158,7 +178,7 @@ function LoginPageInner() {
 
                   {identityType === "email" && (
                     <p className="mt-2 text-xs text-slate-400">
-                      Your cards will be at /personal/email@example.com/slug.json
+                      Your cards will be at /personal/{handle || "username"}/slug.json
                     </p>
                   )}
                 </div>

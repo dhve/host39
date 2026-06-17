@@ -25,6 +25,7 @@ const apiErrorSchema = {
 interface RegisterBody {
   email: string;
   password: string;
+  handle: string;
   display_name?: string;
   identity_type?: 'domain' | 'email';
   domain?: string;
@@ -48,11 +49,12 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
         summary: 'Register a new account',
         body: {
           type: 'object',
-          required: ['email', 'password'],
+          required: ['email', 'password', 'handle'],
           additionalProperties: false,
           properties: {
             email:         { type: 'string', format: 'email', maxLength: 255 },
             password:      { type: 'string', minLength: 8, maxLength: 128 },
+            handle:        { type: 'string', pattern: '^[a-z0-9][a-z0-9-]{1,31}$', maxLength: 32 },
             display_name:  { type: 'string', maxLength: 255 },
             identity_type: { type: 'string', enum: ['domain', 'email'] },
             domain:        { type: 'string', maxLength: 255 },
@@ -66,7 +68,7 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       },
     },
     async (request, reply) => {
-      const { email, password, display_name, identity_type = 'email', domain } = request.body;
+      const { email, password, handle, display_name, identity_type = 'email', domain } = request.body;
 
       // Domain identity requires a domain
       if (identity_type === 'domain' && !domain) {
@@ -79,6 +81,14 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       `;
       if (existing) {
         return reply.code(409).send({ error: 'CONFLICT', detail: 'email already registered' });
+      }
+
+      // Check handle uniqueness
+      const [existingHandle] = await sql<DbUser[]>`
+        SELECT id FROM users WHERE handle = ${handle}
+      `;
+      if (existingHandle) {
+        return reply.code(409).send({ error: 'CONFLICT', detail: 'handle already taken' });
       }
 
       // Check domain uniqueness if provided
@@ -94,15 +104,16 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
       const [user] = await sql<DbUser[]>`
-        INSERT INTO users (email, display_name, password_hash, identity_type, domain)
+        INSERT INTO users (email, handle, display_name, password_hash, identity_type, domain)
         VALUES (
           ${email},
+          ${handle},
           ${display_name ?? null},
           ${passwordHash},
           ${identity_type},
           ${domain ?? null}
         )
-        RETURNING id, email, display_name, identity_type, domain
+        RETURNING id, email, handle, display_name, identity_type, domain
       `;
 
       if (!user) {
@@ -179,6 +190,7 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
             properties: {
               user_id:       { type: 'string' },
               email:         { type: 'string' },
+              handle:        { type: 'string' },
               display_name:  { type: 'string', nullable: true },
               identity_type: { type: 'string' },
               domain:        { type: 'string', nullable: true },
@@ -193,7 +205,7 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       const { userId } = request.user;
 
       const [user] = await sql<DbUser[]>`
-        SELECT id, email, display_name, identity_type, domain
+        SELECT id, email, handle, display_name, identity_type, domain
         FROM users WHERE id = ${userId}
       `;
 
@@ -204,6 +216,7 @@ export async function registerAuthRoutes(fastify: FastifyInstance): Promise<void
       return reply.send({
         user_id:       user.id,
         email:         user.email,
+        handle:        user.handle,
         display_name:  user.displayName,
         identity_type: user.identityType,
         domain:        user.domain,

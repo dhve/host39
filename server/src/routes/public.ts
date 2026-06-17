@@ -14,7 +14,7 @@ function buildPublicUrl(user: DbUser, slug: string, baseUrl: string): string {
   if (user.identityType === 'domain' && user.domain) {
     return `${baseUrl}/${user.domain}/${slug}.json`;
   }
-  return `${baseUrl}/personal/${encodeURIComponent(user.email)}/${slug}.json`;
+  return `${baseUrl}/personal/${user.handle}/${slug}.json`;
 }
 
 function buildAgentCard(user: DbUser, card: DbAgentCard, publicUrl: string): A2AAgentCard {
@@ -44,12 +44,12 @@ export async function registerPublicRoutes(fastify: FastifyInstance): Promise<vo
   const sql = getSql();
   const config = buildConfig();
 
-  // IMPORTANT: Register /personal/:email/:slug.json BEFORE /:domain/:slug.json
+  // IMPORTANT: Register /personal/:handle/:slug.json BEFORE /:domain/:slug.json
   // so Fastify matches the more specific route first.
 
-  // GET /personal/:email/:slug.json — personal (email-identity) user card
-  fastify.get<{ Params: { email: string; slug: string } }>(
-    '/personal/:email/:slug.json',
+  // GET /personal/:handle/:slug.json — personal (email-identity) user card
+  fastify.get<{ Params: { handle: string; slug: string } }>(
+    '/personal/:handle/:slug.json',
     {
       schema: {
         tags: ['public'],
@@ -57,21 +57,19 @@ export async function registerPublicRoutes(fastify: FastifyInstance): Promise<vo
         params: {
           type: 'object',
           properties: {
-            email: { type: 'string' },
-            slug:  { type: 'string' },
+            handle: { type: 'string' },
+            slug:   { type: 'string' },
           },
         },
       },
     },
     async (request, reply) => {
-      const { email, slug } = request.params;
-
-      const decodedEmail = decodeURIComponent(email);
+      const { handle, slug } = request.params;
 
       const [user] = await sql<DbUser[]>`
-        SELECT id, email, display_name, identity_type, domain
+        SELECT id, email, handle, display_name, identity_type, domain
         FROM users
-        WHERE email = ${decodedEmail}
+        WHERE handle = ${handle}
       `;
 
       if (!user) {
@@ -80,7 +78,7 @@ export async function registerPublicRoutes(fastify: FastifyInstance): Promise<vo
 
       const [card] = await sql<DbAgentCard[]>`
         SELECT * FROM agent_cards
-        WHERE user_id = ${user.id} AND slug = ${slug} AND status = 'active'
+        WHERE user_id = ${user.id} AND slug = ${slug} AND status = 'active' AND is_public = TRUE
       `;
 
       if (!card) {
@@ -126,7 +124,7 @@ export async function registerPublicRoutes(fastify: FastifyInstance): Promise<vo
 
       const [card] = await sql<DbAgentCard[]>`
         SELECT * FROM agent_cards
-        WHERE user_id = ${user.id} AND slug = ${slug} AND status = 'active'
+        WHERE user_id = ${user.id} AND slug = ${slug} AND status = 'active' AND is_public = TRUE
       `;
 
       if (!card) {
@@ -151,16 +149,17 @@ export async function registerPublicRoutes(fastify: FastifyInstance): Promise<vo
       },
     },
     async (_request, reply) => {
-      const rows = await sql<(DbAgentCard & { userEmail: string; userIdentityType: string; userDomain: string | null })[
+      const rows = await sql<(DbAgentCard & { userEmail: string; userHandle: string; userIdentityType: string; userDomain: string | null })[
       ]>`
         SELECT
           ac.*,
-          u.email    AS user_email,
+          u.email         AS user_email,
+          u.handle        AS user_handle,
           u.identity_type AS user_identity_type,
-          u.domain   AS user_domain
+          u.domain        AS user_domain
         FROM agent_cards ac
         JOIN users u ON u.id = ac.user_id
-        WHERE ac.status = 'active'
+        WHERE ac.status = 'active' AND ac.is_public = TRUE
         ORDER BY ac.created_at DESC
       `;
 
@@ -168,6 +167,7 @@ export async function registerPublicRoutes(fastify: FastifyInstance): Promise<vo
         const user: DbUser = {
           id:           row.userId,
           email:        row.userEmail,
+          handle:       row.userHandle,
           displayName:  null,
           passwordHash: '',
           identityType: row.userIdentityType as 'domain' | 'email',

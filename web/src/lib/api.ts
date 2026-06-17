@@ -60,6 +60,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export async function registerUser(payload: {
   email: string;
   password: string;
+  handle: string;
   display_name?: string;
   identity_type?: "domain" | "email";
   domain?: string;
@@ -82,6 +83,7 @@ export async function loginUser(email: string, password: string): Promise<string
 export interface Me {
   user_id: string;
   email: string;
+  handle: string;
   display_name: string | null;
   identity_type: "domain" | "email";
   domain: string | null;
@@ -106,6 +108,7 @@ export interface AgentCard {
   provider_name: string | null;
   provider_url: string | null;
   status: "active" | "inactive";
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -129,6 +132,7 @@ export interface CreateCardPayload {
   skills?: unknown[];
   provider_name?: string;
   provider_url?: string;
+  is_public?: boolean;
 }
 
 export async function createCard(payload: CreateCardPayload): Promise<AgentCard> {
@@ -156,11 +160,12 @@ export function getPublicUrl(
   identityType: "domain" | "email",
   domainOrEmail: string,
   slug: string,
+  handle?: string,
   baseUrl?: string
 ): string {
-  const base = baseUrl ?? (process.env.NEXT_PUBLIC_HOST39_API_URL ?? "http://localhost:3010");
+  const base = baseUrl ?? (process.env.NEXT_PUBLIC_HOST39_PUBLIC_BASE_URL ?? process.env.NEXT_PUBLIC_HOST39_API_URL ?? "http://localhost:3010");
   if (identityType === "domain") {
     return `${base}/${domainOrEmail}/${slug}.json`;
   }
-  return `${base}/personal/${encodeURIComponent(domainOrEmail)}/${slug}.json`;
+  return `${base}/personal/${handle ?? encodeURIComponent(domainOrEmail)}/${slug}.json`;
 }

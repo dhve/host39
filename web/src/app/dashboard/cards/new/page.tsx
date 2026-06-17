@@ -23,6 +23,7 @@ interface FormState {
   pushNotifications: boolean;
   authScheme: string;
   skillsJson: string;
+  is_public: boolean;
 }
 
 // ── Defaults per identity type ────────────────────────────────────────────────
@@ -110,7 +111,7 @@ function IdentityBadge({ me, slug }: { me: Me; slug: string }) {
   const isSmb = me.identity_type === "domain";
   const owner = isSmb ? (me.domain ?? me.email) : me.email;
   const previewSlug = slug || (isSmb ? "orders" : "agent");
-  const url = getPublicUrl(me.identity_type, owner, previewSlug);
+  const url = getPublicUrl(me.identity_type, owner, previewSlug, me.handle);
 
   return (
     <div className={cn(
@@ -130,7 +131,7 @@ function IdentityBadge({ me, slug }: { me: Me; slug: string }) {
           "text-xs font-semibold",
           isSmb ? "text-indigo-800" : "text-violet-800",
         )}>
-          {isSmb ? `Business · ${me.domain}` : `Personal · ${me.email}`}
+          {isSmb ? `Business · ${me.domain}` : `Personal · @${me.handle}`}
         </p>
         <p className={cn(
           "mt-0.5 break-all font-mono text-[11px]",
@@ -198,6 +199,7 @@ export default function NewCardPage() {
     pushNotifications: false,
     authScheme: "none",
     skillsJson: "",
+    is_public: true,
   });
 
   useEffect(() => {
@@ -274,6 +276,7 @@ export default function NewCardPage() {
         skills,
         provider_name:  form.provider_name || undefined,
         provider_url:   form.provider_url || undefined,
+        is_public:      form.is_public,
       });
       router.push("/dashboard");
     } catch (err) {
@@ -406,6 +409,14 @@ export default function NewCardPage() {
                       <p className="text-[11px] text-slate-400">Agent can push updates to callers.</p>
                     </div>
                   </label>
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input type="checkbox" checked={form.is_public}
+                      onChange={(e) => set("is_public", e.target.checked)} className="accent-slate-950" />
+                    <div>
+                      <span className="text-sm text-slate-700">Public</span>
+                      <p className="text-[11px] text-slate-400">Accessible at the public URL. Uncheck to keep private.</p>
+                    </div>
+                  </label>
                 </div>
               </div>
 
@@ -458,7 +469,8 @@ export default function NewCardPage() {
                   {getPublicUrl(
                     me.identity_type,
                     me.identity_type === "domain" ? (me.domain ?? me.email) : me.email,
-                    form.slug
+                    form.slug,
+                    me.handle
                   )}
                 </code>
               </div>
@@ -475,6 +487,7 @@ export default function NewCardPage() {
                   { label: "Streaming",           value: form.streaming ? "Yes" : "No",       mono: false },
                   { label: "Push notifications",  value: form.pushNotifications ? "Yes" : "No", mono: false },
                   { label: "Auth",                value: form.authScheme,                     mono: true  },
+                  { label: "Visibility",          value: form.is_public ? "Public" : "Private", mono: false },
                 ].map(({ label, value, mono }) => (
                   <div key={label} className="flex items-baseline justify-between gap-4 py-2.5">
                     <dt className="shrink-0 text-xs text-slate-400">{label}</dt>

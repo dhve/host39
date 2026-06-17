@@ -26,6 +26,7 @@ const agentCardSchema = {
     provider_name:  { type: 'string', nullable: true },
     provider_url:   { type: 'string', nullable: true },
     status:         { type: 'string' },
+    is_public:      { type: 'boolean' },
     created_at:     { type: 'string' },
     updated_at:     { type: 'string' },
   },
@@ -42,6 +43,7 @@ interface CreateCardBody {
   skills?: unknown[];
   provider_name?: string;
   provider_url?: string;
+  is_public?: boolean;
 }
 
 interface UpdateCardBody {
@@ -56,6 +58,7 @@ interface UpdateCardBody {
   provider_name?: string;
   provider_url?: string;
   status?: 'active' | 'inactive';
+  is_public?: boolean;
 }
 
 function mapCard(card: DbAgentCard) {
@@ -73,6 +76,7 @@ function mapCard(card: DbAgentCard) {
     provider_name:  card.providerName,
     provider_url:   card.providerUrl,
     status:         card.status,
+    is_public:      card.isPublic,
     created_at:     card.createdAt,
     updated_at:     card.updatedAt,
   };
@@ -126,6 +130,7 @@ export async function registerCardsRoutes(fastify: FastifyInstance): Promise<voi
             skills:         { type: 'array' },
             provider_name:  { type: 'string', maxLength: 255 },
             provider_url:   { type: 'string', maxLength: 512 },
+            is_public:      { type: 'boolean' },
           },
         },
         response: {
@@ -150,6 +155,7 @@ export async function registerCardsRoutes(fastify: FastifyInstance): Promise<voi
         skills = [],
         provider_name,
         provider_url,
+        is_public = true,
       } = request.body;
 
       // Check slug uniqueness for this user
@@ -163,7 +169,7 @@ export async function registerCardsRoutes(fastify: FastifyInstance): Promise<voi
       const [card] = await sql<DbAgentCard[]>`
         INSERT INTO agent_cards (
           user_id, slug, display_name, description, runtime_url, version,
-          capabilities, authentication, skills, provider_name, provider_url
+          capabilities, authentication, skills, provider_name, provider_url, is_public
         ) VALUES (
           ${userId},
           ${slug},
@@ -175,7 +181,8 @@ export async function registerCardsRoutes(fastify: FastifyInstance): Promise<voi
           ${sql.json(JSON.parse(JSON.stringify(authentication)))},
           ${sql.json(JSON.parse(JSON.stringify(skills)))},
           ${provider_name ?? null},
-          ${provider_url ?? null}
+          ${provider_url ?? null},
+          ${is_public}
         )
         RETURNING *
       `;
@@ -249,6 +256,7 @@ export async function registerCardsRoutes(fastify: FastifyInstance): Promise<voi
             provider_name:  { type: 'string', maxLength: 255 },
             provider_url:   { type: 'string', maxLength: 512 },
             status:         { type: 'string', enum: ['active', 'inactive'] },
+            is_public:      { type: 'boolean' },
           },
         },
         response: {
@@ -284,6 +292,7 @@ export async function registerCardsRoutes(fastify: FastifyInstance): Promise<voi
         provider_name,
         provider_url,
         status,
+        is_public,
       } = request.body;
 
       // Check slug conflict if slug is being changed
@@ -309,6 +318,7 @@ export async function registerCardsRoutes(fastify: FastifyInstance): Promise<voi
           provider_name  = ${provider_name !== undefined ? provider_name : card.providerName},
           provider_url   = ${provider_url !== undefined ? provider_url : card.providerUrl},
           status         = ${status ?? card.status},
+          is_public      = ${is_public !== undefined ? is_public : card.isPublic},
           updated_at     = NOW()
         WHERE id = ${id} AND user_id = ${userId}
         RETURNING *

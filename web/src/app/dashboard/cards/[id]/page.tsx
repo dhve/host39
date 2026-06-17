@@ -45,6 +45,7 @@ export default function EditCardPage() {
   const [authScheme, setAuthScheme] = useState("none");
   const [skillsJson, setSkillsJson] = useState("");
   const [status, setStatus] = useState<"active" | "inactive">("active");
+  const [isPublic, setIsPublic] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,6 +69,7 @@ export default function EditCardPage() {
         setAuthScheme(schemes[0] ?? "none");
         setSkillsJson(cardData.skills.length > 0 ? JSON.stringify(cardData.skills, null, 2) : "");
         setStatus(cardData.status);
+        setIsPublic(cardData.is_public);
       })
       .catch((err) => {
         if (cancelled) return;
@@ -121,6 +123,7 @@ export default function EditCardPage() {
         provider_name: providerName || undefined,
         provider_url:  providerUrl || undefined,
         status,
+        is_public:     isPublic,
       });
       setCard(updated);
       setSuccess("Card updated successfully.");
@@ -184,7 +187,8 @@ export default function EditCardPage() {
   const publicUrl = getPublicUrl(
     me.identity_type,
     me.identity_type === "domain" ? (me.domain ?? me.email) : me.email,
-    slug || card.slug
+    slug || card.slug,
+    me.handle
   );
 
   const inputClass =
@@ -197,30 +201,37 @@ export default function EditCardPage() {
     >
       <div className="max-w-lg space-y-6">
         {/* Public URL banner */}
-        <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Public URL
-          </p>
-          <div className="flex items-center gap-2">
-            <code className="min-w-0 flex-1 truncate font-mono text-sm text-slate-800">
-              {publicUrl}
-            </code>
-            <button
-              onClick={() => copyUrl(publicUrl)}
-              className="shrink-0 rounded-lg border border-black/10 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
-            >
-              {copiedUrl ? "Copied!" : "Copy"}
-            </button>
-            <a
-              href={publicUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 rounded-lg border border-black/10 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
-            >
-              Open
-            </a>
+        {isPublic ? (
+          <div className="rounded-3xl border border-black/10 bg-white p-5 shadow-sm">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Public URL
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="min-w-0 flex-1 truncate font-mono text-sm text-slate-800">
+                {publicUrl}
+              </code>
+              <button
+                onClick={() => copyUrl(publicUrl)}
+                className="shrink-0 rounded-lg border border-black/10 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+              >
+                {copiedUrl ? "Copied!" : "Copy"}
+              </button>
+              <a
+                href={publicUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 rounded-lg border border-black/10 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+              >
+                Open
+              </a>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-600">Private</p>
+            <p className="mt-1 text-sm text-amber-700">This card is not publicly accessible. Enable &ldquo;Public&rdquo; below to publish it.</p>
+          </div>
+        )}
 
         {/* Edit form */}
         <form onSubmit={onSave} className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm space-y-5">
@@ -315,6 +326,18 @@ export default function EditCardPage() {
             <h2 className="mb-4 text-sm font-semibold text-slate-950">Capabilities & Auth</h2>
             <div className="space-y-4">
               <div className="rounded-xl border border-black/10 p-4 space-y-2">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.target.checked)}
+                    className="accent-slate-950"
+                  />
+                  <div>
+                    <span className="text-sm text-slate-700">Public</span>
+                    <p className="text-xs text-slate-400">Accessible at the public URL. Uncheck to make private.</p>
+                  </div>
+                </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"

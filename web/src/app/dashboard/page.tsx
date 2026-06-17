@@ -89,7 +89,10 @@ export default function DashboardPage() {
             <p className="text-sm text-slate-500">{me.email}</p>
             <div className="mt-1 flex items-center gap-2">
               <span className="rounded-full border border-black/10 bg-slate-50 px-2.5 py-0.5 font-mono text-xs text-slate-500">
-                {me.identity_type === "domain" ? `domain: ${me.domain}` : "personal (email)"}
+                @{me.handle}
+              </span>
+              <span className="rounded-full border border-black/10 bg-slate-50 px-2.5 py-0.5 font-mono text-xs text-slate-500">
+                {me.identity_type === "domain" ? `domain: ${me.domain}` : "personal"}
               </span>
             </div>
           </div>
@@ -131,7 +134,8 @@ export default function DashboardPage() {
                 const publicUrl = getPublicUrl(
                   me.identity_type,
                   me.identity_type === "domain" ? (me.domain ?? me.email) : me.email,
-                  card.slug
+                  card.slug,
+                  me.handle
                 );
 
                 return (
@@ -150,6 +154,11 @@ export default function DashboardPage() {
                           }`}>
                             {card.status}
                           </span>
+                          {!card.is_public && (
+                            <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-amber-600">
+                              Private
+                            </span>
+                          )}
                         </div>
                         <p className="font-mono text-xs text-slate-400">/{card.slug}</p>
                         {card.description && (

@@ -10,6 +10,9 @@ host39.org {
   handle /health* {
     reverse_proxy server:3010
   }
+  handle /personal* {
+    reverse_proxy server:3010
+  }
   handle /.well-known/* {
     reverse_proxy server:3010
   }
