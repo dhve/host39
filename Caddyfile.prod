@@ -25,18 +25,25 @@ host39.org {
 
 # agentcards.host39.org — public card JSON serving only
 agentcards.host39.org {
-  # Personal agent cards: /personal/john@hotmail.com/card.json
+  # Personal agent cards: /personal/:handle/:slug.json
   handle /personal/* {
     reverse_proxy server:3010
   }
 
-  # Domain-based agent cards: /moonbakery.com/refund.json
-  handle /* {
-    @agentcard path_regexp ^/[a-z0-9][a-z0-9.-]*/[a-z0-9][a-z0-9-]*\.json$
-    handle @agentcard {
-      reverse_proxy server:3010
-    }
-    # Non-card requests redirect to the main site
+  # Well-known catalog
+  handle /.well-known/* {
+    reverse_proxy server:3010
+  }
+
+  # Domain-based agent cards: /:domain/:slug.json
+  # Matcher must be at the server-block level (not nested inside handle) for Caddy v2
+  @agentcard path_regexp ^/[a-z0-9][a-z0-9.-]*/[a-z0-9][a-z0-9-]*\.json$
+  handle @agentcard {
+    reverse_proxy server:3010
+  }
+
+  # Everything else → redirect to main site
+  handle {
     redir https://host39.org{uri} 301
   }
 }
