@@ -23,30 +23,30 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="max-w-3xl">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1 text-xs font-medium uppercase tracking-wide text-[color:var(--color-fg-weak)]">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-line bg-surface-light px-3 py-1 text-xs font-medium uppercase tracking-wide text-ink-weak">
             Agent Card Hosting
           </div>
-          <h1 className="text-4xl font-semibold leading-tight tracking-[-0.01em] text-[color:var(--color-fg-strong)] sm:text-5xl">
+          <h1 className="font-display text-3xl sm:text-4xl font-semibold text-ink-strong leading-tight tracking-[-0.01em]">
             host your agents
             <br />
-            <span className="text-[color:var(--color-fg-weak)]">at predictable URLs</span>
+            <span className="text-ink-weak">at predictable URLs</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[color:var(--color-fg-muted)]">
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-medium">
             host39 is a third-party A2A agent card host. Register your identity, create agent cards,
             and publish them at stable public URLs — no server required.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/login"
-              className="inline-flex h-10 items-center rounded-[var(--radius-control)] bg-[color:var(--color-primary)] px-5 text-sm font-medium text-white shadow-[var(--shadow-sm)] transition hover:bg-[color:var(--color-primary-hover)]"
+              className="inline-flex items-center justify-center h-9 rounded-control bg-brand-500 px-4 text-sm font-medium text-white hover:bg-brand-600 transition"
             >
               Get started free
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex h-10 items-center rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-5 text-sm font-medium text-[color:var(--color-fg-default)] transition hover:bg-[color:var(--color-surface-2)] hover:border-[color:var(--color-border-strong)]"
+              className="inline-flex items-center justify-center h-9 rounded-control border-2 border-line bg-surface-light px-3 text-sm font-medium text-ink hover:border-line-strong transition"
             >
               Go to dashboard
             </Link>
@@ -55,11 +55,11 @@ export default function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[color:var(--color-fg-weak)]">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-weak">
           How it works
         </p>
-        <h2 className="mb-8 text-2xl font-semibold tracking-[-0.01em] text-[color:var(--color-fg-strong)] sm:text-3xl">
+        <h2 className="mb-8 font-display text-2xl font-bold text-ink-strong leading-tight">
           Three steps to publish your agent
         </h2>
 
@@ -81,45 +81,45 @@ export default function HomePage() {
               desc: "Your card is live at a stable public URL. Register it with the NANDA Index so resolvers can find your agent by identity.",
             },
           ].map((item) => (
-            <div
+            <article
               key={item.step}
-              className="rounded-[var(--radius-card)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-6 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-card-hover)] hover:border-[color:var(--color-border-strong)]"
+              className="bg-surface-light rounded-card border border-line/70 shadow-card p-4 hover:shadow-card-hover hover:border-line-strong transition flex flex-col h-full gap-3"
             >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--color-primary-soft)] text-xs font-semibold text-[color:var(--color-primary-deep)]">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand-200 text-xs font-semibold text-brand-800">
                 {item.step}
               </span>
-              <h3 className="mt-3 text-lg font-semibold text-[color:var(--color-fg-strong)]">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[color:var(--color-fg-muted)]">{item.desc}</p>
-            </div>
+              <h3 className="font-semibold text-ink-strong">{item.title}</h3>
+              <p className="text-sm text-ink leading-relaxed">{item.desc}</p>
+            </article>
           ))}
         </div>
       </section>
 
       {/* URL patterns */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[color:var(--color-fg-weak)]">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-weak">
           URL patterns
         </p>
-        <h2 className="mb-8 text-2xl font-semibold tracking-[-0.01em] text-[color:var(--color-fg-strong)] sm:text-3xl">
+        <h2 className="mb-8 font-display text-2xl font-bold text-ink-strong leading-tight">
           Predictable, stable, public
         </h2>
 
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="rounded-[var(--radius-card)] border border-[color:var(--color-border-strong)] bg-[color:var(--color-primary-soft)] p-6 shadow-[var(--shadow-card)]">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-primary-deep)]">Business / Domain</p>
-            <code className="mt-3 block rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 font-mono text-sm text-[color:var(--color-primary-deep)]">
+          <div className="rounded-card border border-line-strong bg-brand-200 p-6 shadow-card">
+            <p className="text-xs font-bold uppercase tracking-wide text-brand-800">Business / Domain</p>
+            <code className="mt-3 block rounded-control border border-line bg-surface-light p-4 font-mono text-sm text-brand-800">
               /moonbakery.com/orders.json
             </code>
-            <p className="mt-3 text-sm leading-relaxed text-[color:var(--color-fg-muted)]">
+            <p className="mt-3 text-sm leading-relaxed text-ink-medium">
               Register with a domain identity to get clean, branded URLs for your business agents.
             </p>
           </div>
-          <div className="rounded-[var(--radius-card)] border border-[color:var(--color-border-strong)] bg-[color:var(--color-accent-soft)] p-6 shadow-[var(--shadow-card)]">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-accent)]">Personal / Email</p>
-            <code className="mt-3 block rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] p-4 font-mono text-sm text-[color:var(--color-accent)]">
+          <div className="rounded-card border border-line-strong bg-accent-teal p-6 shadow-card">
+            <p className="text-xs font-bold uppercase tracking-wide text-accent-teal-ink">Personal / Email</p>
+            <code className="mt-3 block rounded-control border border-line bg-surface-light p-4 font-mono text-sm text-accent-teal-ink">
               /personal/john@hotmail.com/card.json
             </code>
-            <p className="mt-3 text-sm leading-relaxed text-[color:var(--color-fg-muted)]">
+            <p className="mt-3 text-sm leading-relaxed text-ink-medium">
               Register with your email for personal agent cards — great for developers and individuals.
             </p>
           </div>
@@ -127,16 +127,16 @@ export default function HomePage() {
       </section>
 
       {/* Sample agent card */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[color:var(--color-fg-weak)]">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-weak">
           A2A Agent Card format
         </p>
-        <h2 className="mb-8 text-2xl font-semibold tracking-[-0.01em] text-[color:var(--color-fg-strong)] sm:text-3xl">
+        <h2 className="mb-8 font-display text-2xl font-bold text-ink-strong leading-tight">
           Standard JSON, served instantly
         </h2>
 
-        <div className="overflow-x-auto rounded-[var(--radius-card)] border border-[color:var(--color-border)] bg-[color:var(--color-code-bg)] p-6 shadow-[var(--shadow-card)]">
-          <pre className="font-mono text-sm leading-6 text-[color:var(--color-code-fg)]">
+        <div className="overflow-x-auto rounded-card border border-line bg-brand-800 p-6 shadow-card">
+          <pre className="font-mono text-sm leading-6 text-surface-light">
             {JSON.stringify(SAMPLE_CARD, null, 2)}
           </pre>
         </div>

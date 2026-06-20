@@ -8,26 +8,26 @@ import type { AgentCard, Me } from "@/lib/api";
 import { clearAuthToken } from "@/lib/auth";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
-// ── Shared primitives (token-bound) ───────────────────────────────────────────
+// ── Shared primitives (outshift utility classes) ──────────────────────────────
 
-const cardClass =
-  "rounded-[var(--radius-card)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-[var(--shadow-card)]";
+const infoCardClass =
+  "bg-surface-light rounded-card border border-line p-6 shadow-card";
 
 const inputClass =
-  "w-full h-10 rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 text-sm text-[color:var(--color-fg-default)] outline-none transition focus:border-[color:var(--color-primary)] focus:ring-2 focus:ring-[color:var(--color-primary-soft)]";
+  "w-full h-10 rounded-control border-2 border-line bg-surface-light px-3 text-sm text-ink placeholder:text-ink-weak focus:outline-none focus:border-brand-500 transition-colors";
 
 const textareaClass =
-  "w-full rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-2 text-sm text-[color:var(--color-fg-default)] outline-none transition focus:border-[color:var(--color-primary)] focus:ring-2 focus:ring-[color:var(--color-primary-soft)] resize-none";
+  "w-full rounded-control border-2 border-line bg-surface-light px-3 py-2 text-sm text-ink placeholder:text-ink-weak focus:outline-none focus:border-brand-500 transition-colors resize-none";
 
 const primaryBtnClass =
-  "inline-flex h-10 items-center rounded-[var(--radius-control)] bg-[color:var(--color-primary)] px-5 text-sm font-medium text-white transition hover:bg-[color:var(--color-primary-hover)] disabled:opacity-60";
+  "inline-flex items-center justify-center h-9 rounded-control bg-brand-500 px-4 text-sm font-medium text-white hover:bg-brand-600 transition disabled:opacity-60";
 
 const secondaryBtnClass =
-  "inline-flex h-10 items-center rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-4 text-sm font-medium text-[color:var(--color-fg-default)] transition hover:bg-[color:var(--color-surface-2)]";
+  "inline-flex items-center justify-center h-9 rounded-control border-2 border-line bg-surface-light px-3 text-sm font-medium text-ink hover:border-line-strong transition";
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[color:var(--color-fg-weak)]">
+    <p className="mb-1 text-xs font-bold uppercase tracking-wide text-ink-weak">
       {children}
     </p>
   );
@@ -184,7 +184,7 @@ export default function EditCardPage() {
   if (loading) {
     return (
       <PageShell title="Edit card" description="Loading…">
-        <div className={`${cardClass} p-6 text-sm text-[color:var(--color-fg-weak)]`}>
+        <div className={`${infoCardClass} text-sm text-ink-weak`}>
           Loading…
         </div>
       </PageShell>
@@ -194,7 +194,7 @@ export default function EditCardPage() {
   if (!card || !me) {
     return (
       <PageShell title="Edit card" description="">
-        <div className="rounded-[var(--radius-card)] border border-[color:var(--color-danger-soft)] bg-[color:var(--color-danger-soft)] p-4 text-[color:var(--color-danger)]">
+        <div className="rounded-card border border-[color:var(--color-danger-soft)] bg-[color:var(--color-danger-soft)] p-4 text-[color:var(--color-danger)]">
           {error ?? "Card not found."}
         </div>
       </PageShell>
@@ -216,17 +216,17 @@ export default function EditCardPage() {
       <div className="max-w-lg space-y-6">
         {/* Public URL banner */}
         {isPublic ? (
-          <div className="rounded-[var(--radius-card)] border border-[color:var(--color-border-strong)] bg-[color:var(--color-primary-soft)] p-5 shadow-[var(--shadow-card)]">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[color:var(--color-primary-deep)]">
+          <div className="rounded-card border border-line-strong bg-brand-200 p-5 shadow-card">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-800">
               Public URL
             </p>
             <div className="flex items-center gap-2">
-              <code className="min-w-0 flex-1 truncate font-mono text-sm text-[color:var(--color-primary-deep)]">
+              <code className="min-w-0 flex-1 truncate font-mono text-sm text-brand-800">
                 {publicUrl}
               </code>
               <button
                 onClick={() => copyUrl(publicUrl)}
-                className="shrink-0 rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-xs text-[color:var(--color-fg-default)] hover:bg-[color:var(--color-surface-2)]"
+                className="shrink-0 inline-flex items-center justify-center h-9 rounded-control border-2 border-line bg-surface-light px-3 text-xs font-medium text-ink hover:border-line-strong transition"
               >
                 {copiedUrl ? "Copied!" : "Copy"}
               </button>
@@ -234,25 +234,25 @@ export default function EditCardPage() {
                 href={publicUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 rounded-[var(--radius-control)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-xs text-[color:var(--color-fg-default)] hover:bg-[color:var(--color-surface-2)]"
+                className="shrink-0 inline-flex items-center justify-center h-9 rounded-control border-2 border-line bg-surface-light px-3 text-xs font-medium text-ink hover:border-line-strong transition"
               >
                 Open
               </a>
             </div>
           </div>
         ) : (
-          <div className="rounded-[var(--radius-card)] border border-[color:var(--color-warning-soft)] bg-[color:var(--color-warning-soft)] p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--color-warning)]">Private</p>
-            <p className="mt-1 text-sm text-[color:var(--color-warning)]">This card is not publicly accessible. Enable &ldquo;Public&rdquo; below to publish it.</p>
+          <div className="rounded-card border border-[#fdeccc] bg-[#fdeccc] p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#8a5a06]">Private</p>
+            <p className="mt-1 text-sm text-[#8a5a06]">This card is not publicly accessible. Enable &ldquo;Public&rdquo; below to publish it.</p>
           </div>
         )}
 
         {/* Edit form */}
-        <form onSubmit={onSave} className={`${cardClass} space-y-5 p-6`}>
+        <form onSubmit={onSave} className={`${infoCardClass} space-y-5`}>
 
           {/* Basic */}
           <div>
-            <h2 className="mb-4 text-sm font-semibold text-[color:var(--color-fg-strong)]">Basic info</h2>
+            <h2 className="mb-4 text-sm font-semibold text-ink-strong">Basic info</h2>
             <div className="space-y-4">
               <div>
                 <FieldLabel>Slug *</FieldLabel>
@@ -287,11 +287,11 @@ export default function EditCardPage() {
             </div>
           </div>
 
-          <div className="border-t border-[color:var(--color-border)]" />
+          <div className="border-t border-line" />
 
           {/* Runtime */}
           <div>
-            <h2 className="mb-4 text-sm font-semibold text-[color:var(--color-fg-strong)]">Runtime</h2>
+            <h2 className="mb-4 text-sm font-semibold text-ink-strong">Runtime</h2>
             <div className="space-y-4">
               <div>
                 <FieldLabel>Runtime URL</FieldLabel>
@@ -333,23 +333,23 @@ export default function EditCardPage() {
             </div>
           </div>
 
-          <div className="border-t border-[color:var(--color-border)]" />
+          <div className="border-t border-line" />
 
           {/* Capabilities */}
           <div>
-            <h2 className="mb-4 text-sm font-semibold text-[color:var(--color-fg-strong)]">Capabilities & Auth</h2>
+            <h2 className="mb-4 text-sm font-semibold text-ink-strong">Capabilities & Auth</h2>
             <div className="space-y-4">
-              <div className="rounded-[var(--radius-control)] border border-[color:var(--color-border)] p-4 space-y-2">
+              <div className="rounded-control border border-line p-4 space-y-2">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="accent-[color:var(--color-primary)]"
+                    className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
                   />
                   <div>
-                    <span className="text-sm text-[color:var(--color-fg-default)]">Public</span>
-                    <p className="text-xs text-[color:var(--color-fg-weak)]">Accessible at the public URL. Uncheck to make private.</p>
+                    <span className="text-sm text-ink">Public</span>
+                    <p className="text-xs text-ink-weak">Accessible at the public URL. Uncheck to make private.</p>
                   </div>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -357,18 +357,18 @@ export default function EditCardPage() {
                     type="checkbox"
                     checked={streaming}
                     onChange={(e) => setStreaming(e.target.checked)}
-                    className="accent-[color:var(--color-primary)]"
+                    className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
                   />
-                  <span className="text-sm text-[color:var(--color-fg-default)]">Streaming</span>
+                  <span className="text-sm text-ink">Streaming</span>
                 </label>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={pushNotifications}
                     onChange={(e) => setPushNotifications(e.target.checked)}
-                    className="accent-[color:var(--color-primary)]"
+                    className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
                   />
-                  <span className="text-sm text-[color:var(--color-fg-default)]">Push notifications</span>
+                  <span className="text-sm text-ink">Push notifications</span>
                 </label>
               </div>
 
@@ -412,12 +412,12 @@ export default function EditCardPage() {
           </div>
 
           {error && (
-            <p className="rounded-[var(--radius-control)] border border-[color:var(--color-danger-soft)] bg-[color:var(--color-danger-soft)] px-4 py-2.5 text-sm text-[color:var(--color-danger)]">
+            <p className="rounded-control border border-[color:var(--color-danger-soft)] bg-[color:var(--color-danger-soft)] px-4 py-2.5 text-sm text-[color:var(--color-danger)]">
               {error}
             </p>
           )}
           {success && (
-            <p className="rounded-[var(--radius-control)] border border-[color:var(--color-success-soft)] bg-[color:var(--color-success-soft)] px-4 py-2.5 text-sm text-[color:var(--color-success)]">
+            <p className="rounded-control border border-accent-teal bg-accent-teal px-4 py-2.5 text-sm text-accent-teal-ink">
               {success}
             </p>
           )}
@@ -441,7 +441,7 @@ export default function EditCardPage() {
         </form>
 
         {/* Delete zone */}
-        <div className="rounded-[var(--radius-card)] border border-[color:var(--color-danger)] bg-[color:var(--color-danger-soft)] p-5">
+        <div className="rounded-card border border-[color:var(--color-danger)] bg-[color:var(--color-danger-soft)] p-5">
           <h3 className="text-sm font-semibold text-[color:var(--color-danger)]">Danger zone</h3>
           <p className="mt-1 text-sm text-[color:var(--color-danger)]/85">
             Permanently delete this agent card. This action cannot be undone.
@@ -450,7 +450,7 @@ export default function EditCardPage() {
             {!confirmDelete ? (
               <button
                 onClick={() => setConfirmDelete(true)}
-                className="inline-flex h-10 items-center rounded-[var(--radius-control)] border border-[color:var(--color-danger)] bg-[color:var(--color-surface)] px-4 text-sm font-medium text-[color:var(--color-danger)] hover:bg-[color:var(--color-danger-soft)]"
+                className="inline-flex items-center justify-center h-9 rounded-control border-2 border-[color:var(--color-danger)] bg-surface-light px-3 text-sm font-medium text-[color:var(--color-danger)] hover:bg-[color:var(--color-danger-soft)] transition"
               >
                 Delete card
               </button>
@@ -460,7 +460,7 @@ export default function EditCardPage() {
                 <button
                   onClick={onDelete}
                   disabled={deleting}
-                  className="inline-flex h-10 items-center rounded-[var(--radius-control)] bg-[color:var(--color-danger)] px-4 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+                  className="inline-flex items-center justify-center h-9 rounded-control bg-[color:var(--color-danger)] px-3 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60 transition"
                 >
                   {deleting ? "Deleting…" : "Yes, delete"}
                 </button>
