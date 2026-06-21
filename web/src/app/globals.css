@@ -37,7 +37,7 @@
   --font-display: var(--font-display);
   --font-mono: var(--font-mono);
 
-  /* Radii — only two matter */
+  /* Radii - only two matter */
   --radius-card: var(--radius-card);
   --radius-control: var(--radius-control);
 
@@ -101,7 +101,7 @@
   --radius-card:    8px;
   --radius-control: 4px;
 
-  /* ── Aliases — keep my prior token names resolving to outshift values ── */
+  /* ── Aliases - keep my prior token names resolving to outshift values ── */
 
   --color-bg: var(--color-surface);
   --color-bg-light: var(--color-surface-light);
@@ -128,7 +128,7 @@
   --color-success: var(--color-accent-teal-ink);
   --color-success-soft: var(--color-accent-teal);
 
-  /* Warning / danger — not in outshift's set; keep prior values so existing
+  /* Warning / danger - not in outshift's set; keep prior values so existing
      code paths don't break visually. */
   --color-warning: #8a5a06;
   --color-warning-soft: #fdeccc;
@@ -138,7 +138,7 @@
   --color-code-bg: var(--color-brand-800);
   --color-code-fg: var(--color-surface-light);
 
-  /* Legacy nanda aliases — already in place from prior restyle */
+  /* Legacy nanda aliases - already in place from prior restyle */
   --page-bg: var(--color-surface);
   --panel: var(--color-surface-light);
   --border: var(--color-line);

@@ -12,12 +12,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "host39 — A2A Agent Card Hosting",
+  title: "host39 - A2A Agent Card Hosting",
   description:
     "Host your A2A agent cards at predictable public URLs. No server required.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://host39.org"),
   openGraph: {
-    title: "host39 — A2A Agent Card Hosting",
+    title: "host39 - A2A Agent Card Hosting",
     description:
       "Host your A2A agent cards at predictable public URLs. No server required.",
     type: "website",

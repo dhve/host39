@@ -70,15 +70,15 @@ function ctx(me: Me | null) {
     isSmb,
     slugPlaceholder:    isSmb ? "orders"                          : "agent",
     slugHint:           isSmb
-      ? 'Short name for this specific agent — e.g. "orders", "support", "tracking".'
-      : 'A simple identifier for your card — e.g. "agent", "assistant".',
+      ? 'Short name for this specific agent - e.g. "orders", "support", "tracking".'
+      : 'A simple identifier for your card - e.g. "agent", "assistant".',
     runtimePlaceholder: isSmb ? "https://my-agent.aws.example.com" : "https://my-agent.railway.app",
     runtimeHint:        isSmb
       ? "The A2A endpoint where your business agent runs (AWS, Azure, GCP, etc.)."
       : "Where your personal agent is hosted (Railway, Vercel, Render, etc.). Optional.",
     providerHint:       isSmb
-      ? "Your company name and website — pre-filled from your registered domain."
-      : "Optional — leave blank if you are the provider.",
+      ? "Your company name and website - pre-filled from your registered domain."
+      : "Optional - leave blank if you are the provider.",
     authHint:           isSmb
       ? "How callers must authenticate to use this agent."
       : "Personal agents usually require user consent or no auth for public actions.",
@@ -329,7 +329,7 @@ export default function NewCardPage() {
     >
       <div className="max-w-lg space-y-5">
 
-        {/* Identity badge — always visible */}
+        {/* Identity badge - always visible */}
         {me && <IdentityBadge me={me} slug={form.slug} />}
 
         <div className={infoCardClass}>
@@ -458,7 +458,7 @@ export default function NewCardPage() {
                 </span>
                 <select value={form.authScheme} onChange={(e) => set("authScheme", e.target.value)}
                   className={inputClass}>
-                  <option value="none">None — public access</option>
+                  <option value="none">None - public access</option>
                   <option value="Bearer">Bearer token</option>
                   <option value="OAuth2">OAuth 2.0</option>
                   <option value="ApiKey">API key</option>
@@ -513,10 +513,10 @@ export default function NewCardPage() {
                 {[
                   { label: "Slug",               value: form.slug,                           mono: true  },
                   { label: "Display name",        value: form.display_name,                   mono: false },
-                  { label: "Description",         value: form.description || "—",             mono: false },
-                  { label: "Runtime URL",         value: form.runtime_url || "—",             mono: true  },
-                  { label: "Provider",            value: form.provider_name || "—",           mono: false },
-                  { label: "Provider URL",        value: form.provider_url || "—",            mono: true  },
+                  { label: "Description",         value: form.description || "-",             mono: false },
+                  { label: "Runtime URL",         value: form.runtime_url || "-",             mono: true  },
+                  { label: "Provider",            value: form.provider_name || "-",           mono: false },
+                  { label: "Provider URL",        value: form.provider_url || "-",            mono: true  },
                   { label: "Version",             value: form.version,                        mono: true  },
                   { label: "Streaming",           value: form.streaming ? "Yes" : "No",       mono: false },
                   { label: "Push notifications",  value: form.pushNotifications ? "Yes" : "No", mono: false },
