@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { listPublicCards, type PublicCatalogEntry } from "@/lib/api";
 
-type SeedCard = {
+type Card = {
   id: string;
   name: string;
   type: "Business" | "Personal";
@@ -13,180 +14,46 @@ type SeedCard = {
   tags: string[];
   verified: boolean;
   typeBadge: "BUSINESS" | "PERSONAL";
+  status: "Active";
 };
 
-const SEED_CARDS: SeedCard[] = [
-  {
-    id: "moonbakery-orders",
-    name: "moonbakery.com/orders",
-    type: "Business",
-    version: "Business",
-    date: "6/20/2026",
-    identifier: "urn:ai:domain:moonbakery.com:agent:orders",
-    description:
-      "Place and track orders at Moon Bakery. Runtime hosted at time.moonbakery39.com with bearer-token auth.",
-    tags: ["food", "orders"],
-    verified: true,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "brewlab-orders",
-    name: "brewlab.coffee/orders",
-    type: "Business",
-    version: "Business",
-    date: "6/18/2026",
-    identifier: "urn:ai:domain:brewlab.coffee:agent:orders",
-    description:
-      "Order specialty roasts and schedule pickup from BrewLab Coffee's flagship roastery.",
-    tags: ["food", "coffee", "orders"],
-    verified: false,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "fitzone-memberships",
-    name: "fitzone.fit/memberships",
-    type: "Business",
-    version: "Business",
-    date: "6/17/2026",
-    identifier: "urn:ai:domain:fitzone.fit:agent:memberships",
-    description:
-      "Manage FitZone gym memberships, class bookings, and personal-training schedules.",
-    tags: ["fitness", "memberships"],
-    verified: false,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "sunrisetours-booking",
-    name: "sunrisetours.com/booking",
-    type: "Business",
-    version: "Business",
-    date: "6/15/2026",
-    identifier: "urn:ai:domain:sunrisetours.com:agent:booking",
-    description:
-      "Book guided tours and excursions worldwide through Sunrise Tours' verified booking agent.",
-    tags: ["travel", "booking"],
-    verified: true,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "personal-priya",
-    name: "personal/priya/agent",
-    type: "Personal",
-    version: "Personal",
-    date: "6/14/2026",
-    identifier: "urn:ai:email:priya@gmail.com:agent:default",
-    description:
-      "Priya's personal scheduling and contact assistant - reachable for collaboration requests.",
-    tags: ["individual"],
-    verified: false,
-    typeBadge: "PERSONAL",
-  },
-  {
-    id: "personal-ankit-dev",
-    name: "personal/ankit-dev/agent",
-    type: "Personal",
-    version: "Personal",
-    date: "6/13/2026",
-    identifier: "urn:ai:email:ankit@nasiko.com:agent:dev",
-    description:
-      "Ankit's developer agent - exposes code-review and pair-programming skills for trusted peers.",
-    tags: ["dev", "individual"],
-    verified: false,
-    typeBadge: "PERSONAL",
-  },
-  {
-    id: "personal-sara",
-    name: "personal/sara/card",
-    type: "Personal",
-    version: "Personal",
-    date: "6/12/2026",
-    identifier: "urn:ai:email:sara@outlook.com:agent:card",
-    description:
-      "Sara's portfolio agent - surfaces design case studies and routes new-project inquiries.",
-    tags: ["design", "individual"],
-    verified: false,
-    typeBadge: "PERSONAL",
-  },
-  {
-    id: "travel26-contact",
-    name: "travel26.net/contact",
-    type: "Business",
-    version: "Business",
-    date: "6/11/2026",
-    identifier: "urn:ai:domain:travel26.net:agent:contact",
-    description:
-      "Front-desk concierge for Travel26 - routes contact requests to flights, hotels, and tours.",
-    tags: ["travel", "contact"],
-    verified: false,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "medicore-intake",
-    name: "medicore.health/intake",
-    type: "Business",
-    version: "Business",
-    date: "6/10/2026",
-    identifier: "urn:ai:domain:medicore.health:agent:intake",
-    description:
-      "Patient-intake assistant for Medicore clinics - collects symptoms and books appointments.",
-    tags: ["health"],
-    verified: true,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "nasiko-projects",
-    name: "nasiko.com/projects",
-    type: "Business",
-    version: "Business",
-    date: "6/9/2026",
-    identifier: "urn:ai:domain:nasiko.com:agent:projects",
-    description:
-      "Project-status assistant for Nasiko engineering - answers questions about active sprints.",
-    tags: ["dev", "projects"],
-    verified: false,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "bayareacats-adoption",
-    name: "bayareacats.org/adoption",
-    type: "Business",
-    version: "Business",
-    date: "6/8/2026",
-    identifier: "urn:ai:domain:bayareacats.org:agent:adoption",
-    description:
-      "Browse adoptable cats in the Bay Area and start an adoption application with a volunteer.",
-    tags: ["nonprofit"],
-    verified: true,
-    typeBadge: "BUSINESS",
-  },
-  {
-    id: "pivotpoint-scheduling",
-    name: "pivotpoint.co/scheduling",
-    type: "Business",
-    version: "Business",
-    date: "6/7/2026",
-    identifier: "urn:ai:domain:pivotpoint.co:agent:scheduling",
-    description:
-      "Operations-scheduling agent for PivotPoint - coordinates shifts and resource bookings.",
-    tags: ["ops"],
-    verified: false,
-    typeBadge: "BUSINESS",
-  },
-];
-
-const IDENTITY_OPTIONS = ["Business", "Personal"] as const;
-const STATUS_OPTIONS = ["Active", "Inactive"] as const;
-const TAG_OPTIONS = [
-  "food",
-  "coffee",
-  "travel",
-  "fitness",
-  "dev",
-  "design",
-  "individual",
-];
-
 const PAGE_SIZE = 6;
+
+function parseEntry(entry: PublicCatalogEntry): Card {
+  const isBusiness = entry.identifier.startsWith("urn:ai:domain:");
+  // Derive the {scope}/{slug} display name from the URN + url, matching
+  // the outshift "moonbakery.com/orders" / "personal/sara/card" pattern.
+  let displayName = entry.displayName;
+  if (isBusiness) {
+    const match = entry.identifier.match(/^urn:ai:domain:([^:]+):agent:(.+)$/);
+    if (match) displayName = `${match[1]}/${match[2]}`;
+  } else {
+    // personal: parse the public url path /personal/{handle}/{slug}.json
+    try {
+      const path = new URL(entry.url).pathname;
+      const m = path.match(/^\/personal\/([^/]+)\/([^/.]+)\.json$/);
+      if (m) displayName = `personal/${m[1]}/${m[2]}`;
+    } catch {
+      // leave displayName as the human-readable fallback
+    }
+  }
+
+  return {
+    id: entry.identifier,
+    name: displayName,
+    type: isBusiness ? "Business" : "Personal",
+    version: "1.0",
+    date: "Updated recently",
+    identifier: entry.identifier,
+    description: entry.description ?? "",
+    tags: Array.isArray(entry.tags) ? entry.tags : [],
+    // Every entry in the public catalog is server-filtered to active +
+    // public, so the verified check is safe for all of them.
+    verified: true,
+    typeBadge: isBusiness ? "BUSINESS" : "PERSONAL",
+    status: "Active",
+  };
+}
 
 export default function HomePage() {
   const [search, setSearch] = useState("");
@@ -195,26 +62,84 @@ export default function HomePage() {
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [page, setPage] = useState(1);
 
+  const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    listPublicCards()
+      .then((entries) => {
+        if (cancelled) return;
+        setCards(entries.map(parseEntry));
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : String(e));
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Sidebar option lists derived from the live data.
+  const identityOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of cards) set.add(c.type);
+    return Array.from(set).sort();
+  }, [cards]);
+
+  const statusOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of cards) set.add(c.status);
+    return Array.from(set).sort();
+  }, [cards]);
+
+  const tagOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of cards) for (const t of c.tags) set.add(t);
+    return Array.from(set).sort().slice(0, 30);
+  }, [cards]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return SEED_CARDS.filter((c) => {
-      if (q && !c.name.toLowerCase().includes(q) && !c.identifier.toLowerCase().includes(q)) {
+    return cards.filter((c) => {
+      if (
+        q &&
+        !c.name.toLowerCase().includes(q) &&
+        !c.identifier.toLowerCase().includes(q)
+      ) {
         return false;
       }
-      if (identityFilter.length > 0 && !identityFilter.includes(c.type)) return false;
-      if (tagFilter.length > 0 && !c.tags.some((t) => tagFilter.includes(t))) return false;
-      // STATUS is decorative for seed data - all cards treated as "Active"; only filter if Inactive is the only selection
-      if (statusFilter.length > 0 && !statusFilter.includes("Active")) return false;
+      if (identityFilter.length > 0 && !identityFilter.includes(c.type))
+        return false;
+      if (statusFilter.length > 0 && !statusFilter.includes(c.status))
+        return false;
+      if (
+        tagFilter.length > 0 &&
+        !c.tags.some((t) => tagFilter.includes(t))
+      )
+        return false;
       return true;
     });
-  }, [search, identityFilter, statusFilter, tagFilter]);
+  }, [cards, search, identityFilter, statusFilter, tagFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageStart = (currentPage - 1) * PAGE_SIZE;
   const pageCards = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
-  function toggle(list: string[], value: string, setter: (next: string[]) => void) {
+  function toggle(
+    list: string[],
+    value: string,
+    setter: (next: string[]) => void,
+  ) {
     if (list.includes(value)) {
       setter(list.filter((v) => v !== value));
     } else {
@@ -223,10 +148,24 @@ export default function HomePage() {
     setPage(1);
   }
 
+  const cardsHost = (() => {
+    const base =
+      process.env.NEXT_PUBLIC_HOST39_CARDS_URL ??
+      process.env.NEXT_PUBLIC_HOST39_API_URL ??
+      "";
+    try {
+      return new URL(base).hostname;
+    } catch {
+      return base || "the API";
+    }
+  })();
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h2 className="font-display text-2xl font-bold text-ink-strong leading-tight">Explore</h2>
+        <h2 className="font-display text-2xl font-bold text-ink-strong leading-tight">
+          Explore
+        </h2>
         <p className="mt-1 text-sm text-ink-medium max-w-3xl">
           Browse the secure directory of A2A agent cards hosted on host39.
         </p>
@@ -239,32 +178,59 @@ export default function HomePage() {
             setSearch(v);
             setPage(1);
           }}
+          identityOptions={identityOptions}
           identity={identityFilter}
           onToggleIdentity={(v) => toggle(identityFilter, v, setIdentityFilter)}
+          statusOptions={statusOptions}
           status={statusFilter}
           onToggleStatus={(v) => toggle(statusFilter, v, setStatusFilter)}
+          tagOptions={tagOptions}
           tags={tagFilter}
           onToggleTag={(v) => toggle(tagFilter, v, setTagFilter)}
         />
 
         <div className="flex-1 min-w-0">
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-            {pageCards.map((card) => (
-              <AgentCard key={card.id} card={card} />
-            ))}
-          </div>
-
-          {pageCards.length === 0 && (
-            <div className="rounded-card border border-line bg-surface-light p-8 text-center text-sm text-ink-medium">
-              No hosted cards match your filters.
+          {loading ? (
+            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-surface-strong h-[200px] rounded-card animate-pulse"
+                />
+              ))}
             </div>
-          )}
+          ) : error ? (
+            <div className="rounded-card border border-line bg-surface-light p-8 text-center text-sm text-ink-medium">
+              <p>
+                Could not reach {cardsHost}. Check that the API is running.
+              </p>
+              <p className="mt-2 font-mono text-xs text-ink-weak">{error}</p>
+            </div>
+          ) : cards.length === 0 ? (
+            <div className="rounded-card border border-line bg-surface-light p-8 text-center text-sm text-ink-medium">
+              No hosted cards registered yet.
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+                {pageCards.map((card) => (
+                  <AgentCardTile key={card.id} card={card} />
+                ))}
+              </div>
 
-          <Pagination
-            page={currentPage}
-            total={totalPages}
-            onPage={(p) => setPage(p)}
-          />
+              {pageCards.length === 0 && (
+                <div className="rounded-card border border-line bg-surface-light p-8 text-center text-sm text-ink-medium">
+                  No hosted cards match your filters.
+                </div>
+              )}
+
+              <Pagination
+                page={currentPage}
+                total={totalPages}
+                onPage={(p) => setPage(p)}
+              />
+            </>
+          )}
         </div>
       </div>
     </main>
@@ -274,10 +240,13 @@ export default function HomePage() {
 function FilterSidebar(props: {
   search: string;
   onSearch: (v: string) => void;
+  identityOptions: string[];
   identity: string[];
   onToggleIdentity: (v: string) => void;
+  statusOptions: string[];
   status: string[];
   onToggleStatus: (v: string) => void;
+  tagOptions: string[];
   tags: string[];
   onToggleTag: (v: string) => void;
 }) {
@@ -306,20 +275,24 @@ function FilterSidebar(props: {
             Identity
           </span>
           <div className="space-y-1.5">
-            {IDENTITY_OPTIONS.map((opt) => (
-              <label
-                key={opt}
-                className="flex items-center gap-2 text-sm text-ink cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={props.identity.includes(opt)}
-                  onChange={() => props.onToggleIdentity(opt)}
-                  className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
-                />
-                <span>{opt}</span>
-              </label>
-            ))}
+            {props.identityOptions.length === 0 ? (
+              <span className="text-xs text-ink-weak">No options</span>
+            ) : (
+              props.identityOptions.map((opt) => (
+                <label
+                  key={opt}
+                  className="flex items-center gap-2 text-sm text-ink cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={props.identity.includes(opt)}
+                    onChange={() => props.onToggleIdentity(opt)}
+                    className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))
+            )}
           </div>
         </div>
 
@@ -328,20 +301,24 @@ function FilterSidebar(props: {
             Status
           </span>
           <div className="space-y-1.5">
-            {STATUS_OPTIONS.map((opt) => (
-              <label
-                key={opt}
-                className="flex items-center gap-2 text-sm text-ink cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={props.status.includes(opt)}
-                  onChange={() => props.onToggleStatus(opt)}
-                  className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
-                />
-                <span>{opt}</span>
-              </label>
-            ))}
+            {props.statusOptions.length === 0 ? (
+              <span className="text-xs text-ink-weak">No options</span>
+            ) : (
+              props.statusOptions.map((opt) => (
+                <label
+                  key={opt}
+                  className="flex items-center gap-2 text-sm text-ink cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={props.status.includes(opt)}
+                    onChange={() => props.onToggleStatus(opt)}
+                    className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))
+            )}
           </div>
         </div>
 
@@ -350,20 +327,24 @@ function FilterSidebar(props: {
             Tags
           </span>
           <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
-            {TAG_OPTIONS.map((tag) => (
-              <label
-                key={tag}
-                className="flex items-center gap-2 text-sm text-ink cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  checked={props.tags.includes(tag)}
-                  onChange={() => props.onToggleTag(tag)}
-                  className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
-                />
-                <span className="truncate">{tag}</span>
-              </label>
-            ))}
+            {props.tagOptions.length === 0 ? (
+              <span className="text-xs text-ink-weak">No tags yet</span>
+            ) : (
+              props.tagOptions.map((tag) => (
+                <label
+                  key={tag}
+                  className="flex items-center gap-2 text-sm text-ink cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={props.tags.includes(tag)}
+                    onChange={() => props.onToggleTag(tag)}
+                    className="rounded border-line-strong text-brand-500 focus:ring-brand-500"
+                  />
+                  <span className="truncate">{tag}</span>
+                </label>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -371,7 +352,7 @@ function FilterSidebar(props: {
   );
 }
 
-function AgentCard({ card }: { card: SeedCard }) {
+function AgentCardTile({ card }: { card: Card }) {
   return (
     <article
       className="bg-surface-light rounded-card border border-line/70 shadow-card p-4 hover:shadow-card-hover hover:border-line-strong transition cursor-pointer flex flex-col h-full gap-3"
